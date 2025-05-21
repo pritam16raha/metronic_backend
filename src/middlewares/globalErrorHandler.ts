@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import { ErrorRequestHandler, Request, Response } from "express";
 import { HttpError } from "http-errors";
 import { config } from "../config/config";
 
@@ -8,7 +8,7 @@ import { config } from "../config/config";
 export function notFoundHandler(
   req: Request,
   res: Response,
-  next: NextFunction
+  // next: NextFunction
 ) {
   res.status(404).json({ message: "Route not found" });
 }
@@ -16,7 +16,7 @@ export function notFoundHandler(
 /**
  * Global error handler
  */
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+export const errorHandler: ErrorRequestHandler = (err, req, res) => {
   // err is any, so cast to HttpError if you want statusCode
   const httpErr = err as HttpError;
   const statusCode = httpErr.statusCode ?? 500;

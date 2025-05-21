@@ -1,16 +1,16 @@
 import {
   pgTable,
   serial,
-  varchar,
   text,
   timestamp,
-  integer,
+  uuid,
+  varchar
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const scripts = pgTable("scripts", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
+  userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }), // Foreign key relation to users
   title: varchar("title", { length: 255 }).notNull(),

@@ -4,6 +4,7 @@ import {
     notFoundHandler,
 } from "./middlewares/globalErrorHandler";
 import userRouter from "./user/userRouter";
+import scriptsRouter from "./scripts/scriptRouter";
 
 const app = express();
 app.use(express.json());
@@ -14,6 +15,8 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/users',userRouter);
+
+app.use('/api/scripts', scriptsRouter);
 
 // 1) catch-all for 404s
 app.use(notFoundHandler);
