@@ -31,11 +31,11 @@ export const loginUser = async (
       return next(createHttpError.Unauthorized("Invalid email or password"));
     }
 
-    const token = sign({ sub: user.id }, config.jwtSecret as string, {
+    const access_token = sign({ sub: user.id }, config.jwtSecret as string, {
       expiresIn: "1h",
     });
 
-    res.json({ token });
+    res.json({ access_token });
   } catch (err) {
     next(err);
   }

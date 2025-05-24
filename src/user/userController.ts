@@ -33,7 +33,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       })
       .returning();
 
-    const token = sign({ sub: newUser.id }, config.jwtSecret as string, {
+    const access_token = sign({ sub: newUser.id }, config.jwtSecret as string, {
       expiresIn: "1h",
     });
 
@@ -48,7 +48,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     //   },
     // });
 
-    res.status(201).json({ token });
+    res.status(201).json({ access_token });
   } catch (err) {
     return next(err);
   }

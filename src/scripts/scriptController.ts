@@ -7,7 +7,7 @@
 // import { eq, desc } from "drizzle-orm";
 // import { generateScript } from "./ai.service";
 
-// // Helper to extract userId from Bearer token
+// // Helper to extract userId from Bearer access_token
 // const getUserIdFromToken = (authHeader?: string): number => {
 //   if (!authHeader?.startsWith("Bearer ")) {
 //     throw createHttpError.Unauthorized(
@@ -15,11 +15,11 @@
 //     );
 //   }
 
-//   const token = authHeader.slice(7);
+//   const access_token = authHeader.slice(7);
 //   const payload = verify(token, config.jwtSecret!) as JwtPayload;
 
 //   if (!payload || typeof payload.sub !== "number") {
-//     throw createHttpError.Unauthorized("Invalid token payload");
+//     throw createHttpError.Unauthorized("Invalid access_token payload");
 //   }
 
 //   return payload.sub;
@@ -98,7 +98,7 @@ import { eq, desc } from "drizzle-orm";
 import { generateScript } from "./ai.service";
 
 /**
- * Extracts userId (UUID) from Authorization header (Bearer token)
+ * Extracts userId (UUID) from Authorization header (Bearer access_token)
  */
 const getUserIdFromToken = (authHeader?: string): string => {
   if (!authHeader?.startsWith("Bearer ")) {
@@ -107,11 +107,11 @@ const getUserIdFromToken = (authHeader?: string): string => {
     );
   }
 
-  const token = authHeader.slice(7);
-  const payload = verify(token, config.jwtSecret!) as JwtPayload;
+  const access_token = authHeader.slice(7);
+  const payload = verify(access_token, config.jwtSecret!) as JwtPayload;
 
   if (!payload || typeof payload.sub !== "string") {
-    throw createHttpError.Unauthorized("Invalid token payload");
+    throw createHttpError.Unauthorized("Invalid access_token payload");
   }
 
   return payload.sub;
