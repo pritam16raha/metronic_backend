@@ -6,6 +6,8 @@ import { eq } from "drizzle-orm";
 import { db } from "../db/client";
 import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { config } from "../config/config";
+import cloudinary from "../utils/cloudinary";
+import { UploadApiResponse } from "cloudinary";
 
 /**
  * Extracts the user ID (UUID) from the Authorization header.
@@ -91,20 +93,25 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const { fullName, email, password } = req.body as {
-      fullName?: unknown;
-      email?: unknown;
-      password?: unknown;
+      fullName?: string;
+      email?: string;
+      password?: string;
     };
 
     // Collect only the fields that actually changed
     const updates: Partial<{
-      fullName: string;
-      email: string;
-      password: string;
+      fullName?: string;
+      email?: string;
+      password?: string;
+      profileImage?: string;
       updatedAt: Date;
     }> = { updatedAt: new Date() };
 
-    if (typeof fullName === "string" && fullName.trim() && fullName !== existing.fullName) {
+    if (
+      typeof fullName === "string" &&
+      fullName.trim() &&
+      fullName !== existing.fullName
+    ) {
       updates.fullName = fullName.trim();
     }
 
@@ -122,9 +129,30 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 
     if (typeof password === "string") {
       if (password.length < 6) {
-        throw createHttpError.BadRequest("Password must be at least 6 characters");
+        throw createHttpError.BadRequest(
+          "Password must be at least 6 characters"
+        );
       }
       updates.password = await bcrypt.hash(password, 10);
+    }
+
+    // 5) handle profileImage upload
+    const maybeFile = (req as { file?: Express.Multer.File }).file;
+    if (maybeFile) {
+      const uploadResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "users/avatars" },
+            (err, result) => {
+              if (err) return reject(err);
+              if (!result) return reject(new Error("Cloudinary upload failed"));
+              resolve(result);
+            }
+          );
+          stream.end(maybeFile.buffer);
+        }
+      );
+      updates.profileImage = uploadResult.secure_url;
     }
 
     // If nothing but updatedAt is present, bail

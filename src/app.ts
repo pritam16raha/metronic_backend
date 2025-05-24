@@ -51,7 +51,7 @@ app.use(express.json());
 
 // Your routes
 app.get('/', (_req, res) => {
-  res.json({ message: 'Welcome to Ai Dashboard Backend after Delete Script' });
+  res.json({ message: 'Welcome to Ai Dashboard Backend after Cloudinary Added' });
 });
 app.use('/api/users', userRouter);
 app.use('/api/scripts', scriptsRouter);
