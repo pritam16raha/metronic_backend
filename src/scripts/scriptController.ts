@@ -94,7 +94,7 @@ import { verify, JwtPayload } from "jsonwebtoken";
 import { config } from "../config/config";
 import { db } from "../db/client";
 import { users, scripts } from "../db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { generateScript } from "./ai.service";
 
 /**
@@ -175,6 +175,52 @@ export const getScripts: RequestHandler = async (req, res, next) => {
       .orderBy(desc(scripts.createdAt));
 
     res.json(allScripts);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteScript: RequestHandler = async (req, res, next) => {
+  try {
+    // 1) Who is calling?
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      throw createHttpError.Unauthorized(
+        "Missing or malformed Authorization header"
+      );
+    }
+    const token = authHeader.slice(7);
+    const payload = verify(token, config.jwtSecret!) as JwtPayload;
+    if (!payload || typeof payload.sub !== "string") {
+      throw createHttpError.Unauthorized("Invalid access_token payload");
+    }
+    const userId = payload.sub;
+
+    // 2) Ensure that user actually exists
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) {
+      throw createHttpError.Unauthorized("User not found");
+    }
+
+    // 3) Validate & parse :id param as UUID string
+    const scriptId = req.params.id;
+    if (!scriptId || typeof scriptId !== "string") {
+      throw createHttpError.BadRequest("Invalid script ID");
+    }
+
+    // 4) Attempt delete (only if script.userId === caller’s UUID)
+    const deleted = await db
+      .delete(scripts)
+      .where(and(eq(scripts.id, scriptId), eq(scripts.userId, userId)))
+      .returning(); // returns deleted rows
+
+    if (deleted.length === 0) {
+      // either not found or not owned by this user
+      throw createHttpError.NotFound("Script not found or not yours to delete");
+    }
+
+    // 5) Success – no content
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

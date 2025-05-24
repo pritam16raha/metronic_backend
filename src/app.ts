@@ -51,7 +51,7 @@ app.use(express.json());
 
 // Your routes
 app.get('/', (_req, res) => {
-  res.json({ message: 'Welcome to Ai Dashboard Backend after new Cors' });
+  res.json({ message: 'Welcome to Ai Dashboard Backend after Delete Script' });
 });
 app.use('/api/users', userRouter);
 app.use('/api/scripts', scriptsRouter);
