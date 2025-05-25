@@ -15,7 +15,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { config } from "../config/config";
 
-// Sanity-check: ensure our env variables are loaded
 if (
   !config.cloudinary_name ||
   !config.cloudinary_api_key ||
@@ -29,7 +28,6 @@ if (
   );
 }
 
-// Configure Cloudinary with credentials from config
 cloudinary.config({
   cloud_name: config.cloudinary_name,
   api_key:    config.cloudinary_api_key,

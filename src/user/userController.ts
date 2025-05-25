@@ -92,7 +92,15 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       throw createHttpError.NotFound("User not found");
     }
 
-    const { fullName, email, password } = req.body as {
+    // const { fullName, email, password } = req.body as {
+    //   fullName?: string;
+    //   email?: string;
+    //   password?: string;
+    // };
+
+    // 2) Pull text fields out safely
+    const body = req.body ?? {};
+    const { fullName, email, password } = body as {
       fullName?: string;
       email?: string;
       password?: string;
